@@ -35,24 +35,19 @@ static uint64_t part1(void)
 {
     char *line;
     int fd = open("input.txt", O_RDONLY);
-    uint8_t line_length;
-    uint32_t a, b;
+    size_t i, line_length;
     uint64_t sum = 0;
 
     while ((line_length = get_next_line(fd, &line)) > 0) {
-        for (int i = 0; line[i]; i++) {
-            if (_is_digit(line[i])) {
-                a = (line[i] - '0') * 10;
-                break ;
-            }
-        }
-        for (int i = line_length - 1; i >= 0; i--) {
-            if (_is_digit(line[i])) {
-                b = line[i] - '0';
-                break ;
-            }
-        }
-        sum += a + b;
+        i = 0;
+        while (__builtin_expect(!_is_digit(line[i]), 1))
+            i++;
+        sum += (line[i] - '0') * 10;
+        i = line_length - 1;
+        while (__builtin_expect(i >= 0, 0)
+            && __builtin_expect(!_is_digit(line[i]), 1))
+            i--;
+        sum += line[i] - '0';
     }
 
     close(fd);
