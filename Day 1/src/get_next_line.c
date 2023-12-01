@@ -50,5 +50,5 @@ int get_next_line(int fd, char **line)
 		}
 	}
 	(*line)[line_size] = '\0';
-	return ((c == 0 || c == -1) ? c : 1);
+	return ((c == 0 || c == -1) ? c : line_size);
 }
