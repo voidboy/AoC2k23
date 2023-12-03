@@ -1,0 +1,12 @@
+ Performance counter stats for './aoc' (10000 runs):
+
+              2.63 msec task-clock:u                     #    0.885 CPUs utilized               ( +-  0.17% )
+                 0      context-switches:u               #    0.000 /sec                      
+                 0      cpu-migrations:u                 #    0.000 /sec                      
+                60      page-faults:u                    #   22.835 K/sec                       ( +-  0.02% )
+         6,697,045      cycles:u                         #    2.549 GHz                         ( +-  0.01% )
+        23,379,063      instructions:u                   #    3.49  insn per cycle              ( +-  0.00% )
+         5,841,422      branches:u                       #    2.223 G/sec                       ( +-  0.00% )
+            31,291      branch-misses:u                  #    0.54% of all branches             ( +-  0.01% )
+
+        0.00296833 +- 0.00000622 seconds time elapsed  ( +-  0.21% )
