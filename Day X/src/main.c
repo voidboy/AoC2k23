@@ -10,30 +10,34 @@
 #include "get_next_line.h"
 #include "split.h"
 
-uint32_t part1(const char *line)
+uint64_t part1(void)
 {
-    return 0;
-}
-
-uint32_t part2(const char *line)
-{
-    return 0;
-}
-
-uint32_t aoc(uint32_t (*f)(const char *))
-{
-    uint32_t sum = 0;
+    uint64_t sum = 0;
     int fd = open("input.txt", O_RDONLY);
     char line[LINE_SIZE];
 
-    while (get_next_line(fd, line) > 0)
-        sum += f(line);
+    while (get_next_line(fd, line) > 0) {
+        ;
+    }
+
+    return sum;
+}
+
+uint64_t part2(void)
+{
+    uint64_t sum = 0;
+    int fd = open("input.txt", O_RDONLY);
+    char line[LINE_SIZE];
+
+    while (get_next_line(fd, line) > 0) {
+        ;
+    }
 
     return sum;
 }
 
 int main(void)
 {
-    assert(aoc(part1) == 0);
-    assert(aoc(part2) == 0);
+    assert(part1() == 0);
+    assert(part2() == 0);
 }
