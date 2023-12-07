@@ -25,11 +25,8 @@ uint64_t part1(void)
         uint64_t t = atoll(time[i]);
         uint64_t d = atoll(distance[i]);
         uint64_t beat_record = 0;
-        for (uint64_t j = t / 2; j > 1; j--) {
-            uint64_t try = j * (t - j);
-            if (try > d)
-                beat_record += 2;
-        }
+        for (uint64_t j = t / 2; (j * (t - j)) > d; j--)
+            beat_record += 2;
         if (t % 2 == 0) beat_record -= 1;
         mul = mul ? mul * beat_record : beat_record;
     }
