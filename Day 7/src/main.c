@@ -30,6 +30,15 @@ struct Game {
 
 };
 
+static inline void swap(struct Game *a, struct Game *b)
+{
+    struct Game tmp; //deep copy with array
+
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 static uint8_t label_to_index(const char label)
 {
     // A, K, Q, J, T, 9, 8, 7, 6, 5, 4, 3, or 2
@@ -50,6 +59,46 @@ static uint8_t label_to_index(const char label)
     }
     return 0; // compiler warning
 }
+
+static enum Type which_type(const char *hand)
+{
+    short pairs = 0, max = 0, occur[CARDS] = {0};
+    for (size_t i = 0; i < HAND_SIZE; i++) {
+        const uint8_t index = label_to_index(hand[i]);
+        occur[index] += 1;
+        max = MAX(max, occur[index]);
+        if (occur[index] && ((occur[index] % 2) == 0))
+            pairs++;
+    }
+    switch (max) {
+        case 5: return FIVE_KIND;
+        case 4: return FOUR_KIND;
+        case 3: return (pairs == 2 ? FULL_HOUSE : THREE_KIND);
+        case 2: return (pairs == 2 ? TWO_PAIR   :   ONE_PAIR);
+        case 1: return HIGH_CARD;
+    }
+    return HIGH_CARD; // compiler warning
+}
+
+static void sort_hands(struct Game *g)
+{
+    for (size_t i = LINES - 1; i > 0; i--) {
+        for (size_t j = 0; j < i; j++) {
+            if (g[j].t > g[j + 1].t) {
+                swap(&g[j], &g[j + 1]);
+            } else if (g[j].t == g[j + 1].t) {
+                for (short k = 0; g[j].hand[k]; k++) {
+                    const short s1 = label_to_index(g[j + 0].hand[k]);
+                    const short s2 = label_to_index(g[j + 1].hand[k]);
+                    if (s1 < s2) { break ; }
+                    if (s1 > s2) { swap(&g[j], &g[j + 1]); break ; }
+                }
+            }
+        }
+    }
+}
+
+// ============================================================================
 
 static uint8_t P2_label_to_index(const char label)
 {
@@ -72,27 +121,6 @@ static uint8_t P2_label_to_index(const char label)
     return 0; // compiler warning
 }
 
-static enum Type which_type(const char *hand)
-{
-    short pairs = 0, max = 0, occur[CARDS] = {0};
-    for (size_t i = 0; i < HAND_SIZE; i++) {
-        const uint8_t index = label_to_index(hand[i]);
-        occur[index] += 1;
-        max = MAX(max, occur[index]);
-        if (occur[index] && ((occur[index] % 2) == 0))
-            pairs++;
-    }
-    //printf("hand is %s, max is %d, pairs is %d\n", hand, max, pairs);
-    switch (max) {
-        case 5: return FIVE_KIND;
-        case 4: return FOUR_KIND;
-        case 3: return (pairs == 2 ? FULL_HOUSE : THREE_KIND);
-        case 2: return (pairs == 2 ? TWO_PAIR   :   ONE_PAIR);
-        case 1: return HIGH_CARD;
-    }
-    return HIGH_CARD; // compiler warning
-}
-
 static enum Type P2_which_type(const char *hand)
 {
     short jokers = 0, pairs = 0, max = 0, occur[CARDS] = {0};
@@ -107,7 +135,6 @@ static enum Type P2_which_type(const char *hand)
                 pairs++;
         }
     }
-    //printf("hand is %s, max is %d, pairs is %d\n", hand, max, pairs);
     switch (max + jokers) {
         case 5: return FIVE_KIND;
         case 4: return FOUR_KIND;
@@ -116,33 +143,6 @@ static enum Type P2_which_type(const char *hand)
         case 1: return HIGH_CARD;
     }
     return HIGH_CARD; // compiler warning
-}
-
-static inline void swap(struct Game *a, struct Game *b)
-{
-    struct Game tmp; //deep copy with array
-
-    tmp = *a;
-    *a = *b;
-    *b = tmp;
-}
-
-static void sort_hands(struct Game *g)
-{
-    for (size_t i = LINES - 1; i > 0; i--) {
-        for (size_t j = 0; j < i; j++) {
-            if (g[j].t > g[j + 1].t) {
-                swap(&g[j], &g[j + 1]);
-            } else if (g[j].t == g[j + 1].t) {
-                for (short k = 0; g[j].hand[k]; k++) {
-                    const short s1 = label_to_index(g[j + 0].hand[k]);
-                    const short s2 = label_to_index(g[j + 1].hand[k]);
-                    if (s1 < s2) { break ; }
-                    if (s1 > s2) { swap(&g[j], &g[j + 1]); break ; }
-                }
-            }
-        }
-    }
 }
 
 static void P2_sort_hands(struct Game *g)
@@ -200,7 +200,6 @@ uint64_t part2(void)
 
     return sum;
 }
-
 
 int main(void)
 {
