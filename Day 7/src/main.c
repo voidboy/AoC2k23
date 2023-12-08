@@ -87,12 +87,12 @@ static void sort_hands(struct Game *g)
             if (g[j].t > g[j + 1].t) {
                 swap(&g[j], &g[j + 1]);
             } else if (g[j].t == g[j + 1].t) {
-                for (short k = 0; g[j].hand[k]; k++) {
-                    const short s1 = label_to_index(g[j + 0].hand[k]);
-                    const short s2 = label_to_index(g[j + 1].hand[k]);
-                    if (s1 < s2) { break ; }
-                    if (s1 > s2) { swap(&g[j], &g[j + 1]); break ; }
-                }
+                short k = 0;
+                while (g[j].hand[k] == g[j + 1].hand[k])
+                    k++;
+                const short s1 = label_to_index(g[j + 0].hand[k]);
+                const short s2 = label_to_index(g[j + 1].hand[k]);
+                if (s1 > s2) { swap(&g[j], &g[j + 1]); }
             }
         }
     }
@@ -152,12 +152,12 @@ static void P2_sort_hands(struct Game *g)
             if (g[j].t > g[j + 1].t) {
                 swap(&g[j], &g[j + 1]);
             } else if (g[j].t == g[j + 1].t) {
-                for (short k = 0; g[j].hand[k]; k++) {
-                    const short s1 = P2_label_to_index(g[j + 0].hand[k]);
-                    const short s2 = P2_label_to_index(g[j + 1].hand[k]);
-                    if (s1 < s2) { break ; }
-                    if (s1 > s2) { swap(&g[j], &g[j + 1]); break ; }
-                }
+                short k = 0;
+                while (g[j].hand[k] == g[j + 1].hand[k])
+                    k++;
+                const short s1 = P2_label_to_index(g[j + 0].hand[k]);
+                const short s2 = P2_label_to_index(g[j + 1].hand[k]);
+                if (s1 > s2) { swap(&g[j], &g[j + 1]); }
             }
         }
     }
