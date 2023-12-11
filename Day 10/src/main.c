@@ -6,11 +6,12 @@
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "get_next_line.h"
 #include "split.h"
 #define WIDTH  140
-#define HEIGHT WIDTH
+#define HEIGHT 140
 
 enum Dir {
     TOP,
@@ -97,18 +98,19 @@ loop_entries(
 
 inline void move_point(struct Point *p, char map[HEIGHT][WIDTH])
 {
-    if (map[p->y][p->x] == '|')
+    if (map[p->y][p->x] == '|') {
         if (p->d == TOP)  { p->y -= 1; } else { p->y += 1; }
-    else if (map[p->y][p->x] == '-')
+    } else if (map[p->y][p->x] == '-') {
         if (p->d == LEFT) { p->x -= 1; } else { p->x += 1; }
-    else if (map[p->y][p->x] == 'L')
+    } else if (map[p->y][p->x] == 'L') {
         if (p->d == BOT) { p->x += 1; p->d = RIGHT; } else { p->y -= 1; p->d = TOP; }
-    else if (map[p->y][p->x] == 'J')
+    } else if (map[p->y][p->x] == 'J') {
         if (p->d == BOT) { p->x -= 1; p->d = LEFT;  } else { p->y -= 1; p->d = TOP; }
-    else if (map[p->y][p->x] == '7')
+    } else if (map[p->y][p->x] == '7') {
         if (p->d == TOP) { p->x -= 1; p->d = LEFT;  } else { p->y += 1; p->d = BOT; }
-    else if (map[p->y][p->x] == 'F')
+    } else if (map[p->y][p->x] == 'F') {
         if (p->d == TOP) { p->x += 1; p->d = RIGHT; } else { p->y += 1; p->d = BOT; }
+    }
 }
 
 uint64_t part1(void)
@@ -122,10 +124,7 @@ uint64_t part1(void)
     for (size_t i = 0; get_next_line(fd, line) > 0; i++) 
         strncpy(map[i], line, WIDTH);
     find_start(map, &start);
-    printf("Start @ [%3lu,%3lu]\n", start.x,  start.y);
     loop_entries(map, &start, &adj);
-    printf("Adj1  @ [%3lu,%3lu]\n", adj[0].x, adj[0].y);
-    printf("Adj2  @ [%3lu,%3lu]\n", adj[1].x, adj[1].y);
     while (adj[0].x != adj[1].x || adj[0].y != adj[1].y) {
         move_point(&adj[0], map);
         move_point(&adj[1], map);
@@ -136,20 +135,13 @@ uint64_t part1(void)
 
 uint64_t part2(void)
 {
-    uint64_t sum = 0;
-    int fd = open("input.txt", O_RDONLY);
-    char line[LINE_SIZE];
-
-    while (get_next_line(fd, line) > 0) {
-        ;
-    }
-
-    return sum;
+    return 0; // doing this on paper LoL 
 }
+
+
 
 int main(void)
 {
-    printf("part. 1 is %ld\n", part1());
-    //assert(part1() == 0);
+    assert(part1() == 6931);
     //assert(part2() == 0);
 }

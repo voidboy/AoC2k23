@@ -6,6 +6,7 @@
 #include <string.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <assert.h>
 #include "get_next_line.h"
 #include "split.h"
