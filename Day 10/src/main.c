@@ -14,10 +14,10 @@
 #define HEIGHT 140
 
 enum Dir {
-    TOP,
-    BOT,
-    LEFT,
-    RIGHT,
+    TOP   = 1,
+    BOT   = 2,
+    LEFT  = 4,
+    RIGHT = 8,
 };
 
 struct Point {
@@ -40,7 +40,7 @@ find_start(char map[HEIGHT][WIDTH], struct Point *p)
     }
 }
 
-inline void
+inline enum Dir
 loop_entries(
         char map[HEIGHT][WIDTH],
         struct Point *start,
@@ -48,6 +48,7 @@ loop_entries(
 )
 {
     short i = 0;
+    enum Dir d = 0;
 
     // NORTH ^
     if (start->y - 1 > 0) {
@@ -58,6 +59,7 @@ loop_entries(
             adj[i++] = (struct Point) { 
                 .x = start->x, .y = start->y - 1, .d = TOP
             };
+            d |= TOP;
         }
     }
     // SOUTH v
@@ -69,6 +71,7 @@ loop_entries(
             adj[i++] = (struct Point) {
                 .x = start->x, .y = start->y + 1, .d = BOT
             };
+            d |= BOT;
         }
     }
     // EAST  > 
@@ -80,6 +83,7 @@ loop_entries(
             adj[i++] = (struct Point){ 
                 .x = start->x + 1, .y = start->y, .d = RIGHT
             };
+            d |= RIGHT;
         }
     }
     // WEST  <
@@ -91,9 +95,10 @@ loop_entries(
             adj[i++] = (struct Point) {
                 .x = start->x - 1, .y = start->y, .d = LEFT
             };
+            d |= LEFT;
         }
     }
-    assert(i == 2);
+    assert(i == 2); return d;
 }
 
 inline void move_point(struct Point *p, char map[HEIGHT][WIDTH])
@@ -133,15 +138,96 @@ uint64_t part1(void)
     return sum;
 }
 
-uint64_t part2(void)
+bool is_loop(struct Point *loop, uint64_t loop_points, struct Point *p)
 {
-    return 0; // doing this on paper LoL 
+    for (size_t i = 0; i < loop_points; i++)
+        if (loop[i].x == p->x && loop[i].y == p->y)
+            return true;
+    return false;
 }
 
+size_t count_cross_loop(
+        struct Point *loop,
+        uint64_t loop_points,
+        char map[HEIGHT][WIDTH],
+        struct Point *p
+)
+{
+    size_t counter = 0;
 
+    for (int i = p->x - 1; i >= 0;) {
+        struct Point current = {.x = i, .y = p->y};
+        if (is_loop(loop, loop_points, &current)) {
+            switch (map[current.y][current.x]) {
+            case '|': { counter++; i--; }
+            break ;
+            case '7': {
+                while (--i && map[current.y][i] == '-')
+                    ;
+                if (map[current.y][i] == 'L') { counter++; }
+            }
+            break ;
+            case 'J': {
+                while (--i && map[current.y][i] == '-')
+                    ;
+                if (map[current.y][i] == 'F') { counter++; }
+            }
+            break ;
+            default: i--;
+            }
+        } else {
+            i--;
+        }
+    }
+
+    return counter;
+}
+
+void patch_start(char map[HEIGHT][WIDTH], struct Point *s, enum Dir d)
+{
+    if      (d == (TOP  |   BOT)) { map[s->y][s->x] = '|'; } 
+    else if (d == (TOP  |  LEFT)) { map[s->y][s->x] = 'J'; } 
+    else if (d == (TOP  | RIGHT)) { map[s->y][s->x] = 'L'; } 
+    else if (d == (LEFT | RIGHT)) { map[s->y][s->x] = '-'; } 
+    else if (d == (BOT  | RIGHT)) { map[s->y][s->x] = 'F'; } 
+    else if (d == (BOT  |  LEFT)) { map[s->y][s->x] = '7'; } 
+}
+
+uint64_t part2(void)
+{
+    uint64_t loop_points = 0, sum = 0;
+    int fd = open("input.txt", O_RDONLY);
+    char line[LINE_SIZE];
+    char map[HEIGHT][WIDTH];
+    struct Point start, adj[2], loop[HEIGHT * WIDTH];
+
+    for (size_t i = 0; get_next_line(fd, line) > 0; i++) 
+        strncpy(map[i], line, WIDTH);
+    find_start(map, &start);
+    enum Dir d = loop_entries(map, &start, &adj);
+    patch_start(map, &start, d);
+    loop[loop_points++] = start;
+    do {
+        loop[loop_points++] = adj[0];
+        move_point(&adj[0], map);
+    } while (adj[0].x != start.x || adj[0].y != start.y);
+    for (size_t i = 0; i < HEIGHT; i++) {
+        for (size_t j = 0; j < WIDTH; j++) {
+            struct Point current = { .x = j, .y = i };
+            if (!is_loop(loop, loop_points, &current)) {
+                size_t n = count_cross_loop(
+                        loop, loop_points, map, &current
+                );
+                if (n && n % 2 != 0)
+                    sum++;
+            }
+        }
+    }
+    return sum;
+}
 
 int main(void)
 {
     assert(part1() == 6931);
-    //assert(part2() == 0);
+    assert(part2() == 357);
 }
